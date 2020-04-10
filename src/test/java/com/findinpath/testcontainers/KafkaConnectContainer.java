@@ -7,7 +7,6 @@ import org.testcontainers.utility.MountableFile;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -20,16 +19,13 @@ import static com.findinpath.testcontainers.Utils.containerLogsConsumer;
 import static java.lang.String.format;
 
 /**
- * This file is a copy of the KafkaConnectContainer code available on ydespreaux's Github account:
+ * This file is a slight adapatation of the KafkaConnectContainer code available on ydespreaux's Github account:
  *
  * @see <a href="https://github.com/ydespreaux/testcontainers/blob/master/testcontainers-kafka/src/main/java/com/github/ydespreaux/testcontainers/kafka/containers/KafkaConnectContainer.java">KafkaConnectContainer.java</a>
  */
 public class KafkaConnectContainer extends GenericContainer<KafkaConnectContainer> {
 
-    private static final String AVRO_CONVERTER_PATTERN = "AvroConverter";
-
     public static final int CONNECT_REST_PORT_INTERNAL = 28082;
-
     /**
      * Key / value for Configuration
      */
@@ -44,6 +40,7 @@ public class KafkaConnectContainer extends GenericContainer<KafkaConnectContaine
     public static final String KEY_CONVERTER_SCHEMA_REGISTRY_URL_CONFIG = "CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL";
     public static final String VALUE_CONVERTER_CONFIG = "CONNECT_VALUE_CONVERTER";
     public static final String VALUE_CONVERTER_SCHEMA_REGISTRY_URL_CONFIG = "CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL";
+    private static final String AVRO_CONVERTER_PATTERN = "AvroConverter";
     private static final String PLUGIN_PATH_CONTAINER = "/usr/share/java";
     private static final String GROUP_ID_DEFAULT_VALUE = "kafka-connect-group";
     private static final String OFFSET_STORAGE_FILE_FILENAME_DEFAULT_VALUE = "connect-offsets-file.txt";
@@ -69,24 +66,21 @@ public class KafkaConnectContainer extends GenericContainer<KafkaConnectContaine
 
 
     private final String bootstrapServers;
-
+    private final String networkAlias = "kafka-connect";
     /**
      * Schema registry url
      */
     private String schemaRegistryUrl;
-
     private boolean hasKeyAvroConverter = false;
     private boolean hasValueAvroConverter = false;
 
-    private final String networkAlias = "kafka-connect";
 
-
-    public KafkaConnectContainer(String bootstrapServersConnect) throws IOException {
+    public KafkaConnectContainer(String bootstrapServersConnect) {
         this(CONFLUENT_PLATFORM_VERSION, bootstrapServersConnect);
     }
 
     public KafkaConnectContainer(String confluentPlatformVersion,
-                                 String bootstrapServers) throws IOException {
+                                 String bootstrapServers) {
         super(getKafkaConnectContainerImage(confluentPlatformVersion));
         this.bootstrapServers = bootstrapServers;
 
@@ -111,6 +105,14 @@ public class KafkaConnectContainer extends GenericContainer<KafkaConnectContaine
 
 
         waitingFor(Wait.forHttp("/").withStartupTimeout(Duration.ofSeconds(120L)));
+    }
+
+    private static String getKafkaConnectContainerImage(String confluentPlatformVersion) {
+        return (String) TestcontainersConfiguration
+                .getInstance().getProperties().getOrDefault(
+                        "kafkaconnect.container.image",
+                        "confluentinc/cp-kafka-connect:" + confluentPlatformVersion
+                );
     }
 
     /**
@@ -304,7 +306,6 @@ public class KafkaConnectContainer extends GenericContainer<KafkaConnectContaine
         return this;
     }
 
-
     /**
      * Get the url.
      *
@@ -321,14 +322,5 @@ public class KafkaConnectContainer extends GenericContainer<KafkaConnectContaine
      */
     public String getInternalUrl() {
         return format("http://%s:%d", this.getNetworkAliases().get(0), CONNECT_REST_PORT_INTERNAL);
-    }
-
-
-    private static String getKafkaConnectContainerImage(String confluentPlatformVersion) {
-        return (String) TestcontainersConfiguration
-                .getInstance().getProperties().getOrDefault(
-                        "kafkaconnect.container.image",
-                        "confluentinc/cp-kafka-connect:" + confluentPlatformVersion
-                );
     }
 }

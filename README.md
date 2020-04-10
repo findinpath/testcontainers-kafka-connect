@@ -29,9 +29,6 @@ Confluent Schema Registry 8081), but rather free ports available on the
 test machine avoiding therefor possible conflicts with already running
 services on the test machine. 
 
-This project provides a functional prototype on how to setup the whole
-Confluent environment (including **Confluent Schema Registry** and **Apache Kafka Connect**) 
-via testcontainers.
 
 **NOTE** In order to interact with PostgreSQL from **Apache Kafka Connect** the PostgreSQL
 driver (see [postgresql-42.2.12.jar](src/test/resources/plugins/kafka-connect-jdbc/postgresql-42.2.12.jar))
@@ -76,3 +73,20 @@ for trying out the project.
 The file [testcontainers.properties](src/test/resources/testcontainers.properties) can be
 used for overriding the default [docker](https://www.docker.com/) images used for the containers needed in setting 
 up the Confluent test environment.
+
+
+## Test containers
+
+This project provides a functional prototype on how to setup the whole
+Confluent environment (including **Confluent Schema Registry** and **Apache Kafka Connect**) 
+via testcontainers.
+
+### Kafka Connect
+
+In order to use the Confluent's Kafka Connect container, this project made use of the already existing code
+for [KafkaConnectContainer](https://github.com/ydespreaux/testcontainers/blob/master/testcontainers-kafka/src/main/java/com/github/ydespreaux/testcontainers/kafka/containers/KafkaConnectContainer.java)
+on [ydespreaux](https://github.com/ydespreaux) Github account.
+
+**NOTE** that the `KafkaConnectContainer` class previously mentioned has also corresponding test cases 
+within the project [lib-kafka-connect](https://github.com/ydespreaux/shared/tree/master/lib-kafka-connect) in order to have a clue
+on how to interact in an integration test with the container.  

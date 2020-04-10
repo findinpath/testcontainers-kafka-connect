@@ -17,16 +17,24 @@ final class Utils {
      * Retrieves a random port that is currently not in use on this machine.
      *
      * @return a free port
-     * @throws IOException wraps the exceptions which may occur during this method call.
      */
-    static int getRandomFreePort() throws IOException {
+    static int getRandomFreePort() {
         try (var serverSocket = new ServerSocket(0)) {
             return serverSocket.getLocalPort();
+        } catch (IOException e) {
+            sneakyThrow(e);
+            return 0;
         }
     }
 
+    public static <E extends Throwable> void sneakyThrow(Throwable e) throws E {
+        throw (E) e;
+    }
+
     /**
-     * Add logs consumer
+     * Add logs consumer for the testcontainers.
+     * Increase the log level when debugging exceptions that may occur at
+     * the initialization of the containers.
      *
      * @param log
      * @return

@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
+import static java.lang.String.format;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -96,7 +97,10 @@ public class KafkaConnectDemoTest {
     private static final String POSTGRES_DB_USERNAME = "sa";
     private static final String POSTGRES_DB_PASSWORD = "p@ssw0rd!";
     private static final int POSTGRES_INTERNAL_PORT = 5432;
-    private static final String POSTGRES_CONNECTION_URL = String.format("jdbc:postgresql://%s:%d/%s?loggerLevel=OFF",
+    /**
+     * Postgres JDBC connection URL to be used within the docker environment.
+     */
+    private static final String POSTGRES_INTERNAL_CONNECTION_URL = format("jdbc:postgresql://%s:%d/%s?loggerLevel=OFF",
             POSTGRES_NETWORK_ALIAS,
             POSTGRES_INTERNAL_PORT,
             POSTGRES_DB_NAME);
@@ -165,7 +169,7 @@ public class KafkaConnectDemoTest {
     public void demo() {
 
         var bookmarksTableConnectorConfig = createBookmarksTableConnectorConfig(KAFKA_CONNECT_CONNECTOR_NAME,
-                POSTGRES_CONNECTION_URL,
+                POSTGRES_INTERNAL_CONNECTION_URL,
                 POSTGRES_DB_USERNAME,
                 POSTGRES_DB_PASSWORD);
         registerBookmarksTableConnector(bookmarksTableConnectorConfig);
@@ -184,7 +188,7 @@ public class KafkaConnectDemoTest {
 
 
         var genericRecords = dumpGenericRecordTopic(KAFKA_CONNECT_OUTPUT_TOPIC, 2, POLL_TIMEOUT_MS);
-        LOGGER.info(String.format("Retrieved %d consumer records from the topic %s",
+        LOGGER.info(format("Retrieved %d consumer records from the topic %s",
                 genericRecords.size(), KAFKA_CONNECT_OUTPUT_TOPIC));
 
 
@@ -208,7 +212,7 @@ public class KafkaConnectDemoTest {
      * @return a database connection
      * @throws SQLException wraps the exceptions which may occur
      */
-    public Connection connect() throws SQLException {
+    private Connection connect() throws SQLException {
         return DriverManager.getConnection(postgreSQLContainer.getJdbcUrl(), POSTGRES_DB_USERNAME, POSTGRES_DB_PASSWORD);
     }
 
@@ -218,7 +222,7 @@ public class KafkaConnectDemoTest {
      * @param bookmark the bookmark to be inserted.
      * @return the ID of the inserted bookmark in the database.
      */
-    public long insertBookmark(Bookmark bookmark) {
+    private long insertBookmark(Bookmark bookmark) {
         String SQL = "INSERT INTO bookmarks(name,url) VALUES (?,?)";
 
         try (Connection conn = connect();
@@ -375,7 +379,7 @@ public class KafkaConnectDemoTest {
                 }
                 if (System.currentTimeMillis() - start > pollTimeoutMillis) {
                     throw new IllegalStateException(
-                            String.format(
+                            format(
                                     "Timed out while waiting for %d messages from the %s. Only %d messages received so far.",
                                     minMessageCount, topic, consumerRecords.size()));
                 }

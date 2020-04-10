@@ -3,7 +3,6 @@ package com.findinpath.testcontainers;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 import static com.findinpath.testcontainers.Utils.CONFLUENT_PLATFORM_VERSION;
@@ -24,11 +23,11 @@ public class KafkaContainer extends GenericContainer<KafkaContainer> {
     private final String bootstrapServersUrl;
     private final String internalBootstrapServersUrl;
 
-    public KafkaContainer(String zookeeperConnect) throws IOException {
+    public KafkaContainer(String zookeeperConnect) {
         this(CONFLUENT_PLATFORM_VERSION, zookeeperConnect);
     }
 
-    public KafkaContainer(String confluentPlatformVersion, String zookeeperConnect) throws IOException {
+    public KafkaContainer(String confluentPlatformVersion, String zookeeperConnect) {
         super(getKafkaContainerImage(confluentPlatformVersion));
 
         this.exposedPort = getRandomFreePort();
@@ -38,9 +37,12 @@ public class KafkaContainer extends GenericContainer<KafkaContainer> {
         env.put("KAFKA_ZOOKEEPER_CONNECT", zookeeperConnect);
         env.put("ZOOKEEPER_SASL_ENABLED", "false");
         env.put("KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR", "1");
-        env.put("KAFKA_LISTENERS", "PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:" + KAFKA_INTERNAL_PORT);
+        env.put("KAFKA_LISTENERS",
+                "PLAINTEXT://0.0.0.0:" + KAFKA_INTERNAL_ADVERTISED_LISTENERS_PORT +
+                ",PLAINTEXT_HOST://0.0.0.0:" + KAFKA_INTERNAL_PORT);
         env.put("KAFKA_ADVERTISED_LISTENERS",
-                "PLAINTEXT://" + networkAlias + ":29092,PLAINTEXT_HOST://" + getContainerIpAddress() + ":" + exposedPort);
+                "PLAINTEXT://" + networkAlias + ":" + KAFKA_INTERNAL_ADVERTISED_LISTENERS_PORT
+                        + ",PLAINTEXT_HOST://" + getContainerIpAddress() + ":" + exposedPort);
         env.put("KAFKA_LISTENER_SECURITY_PROTOCOL_MAP", "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT");
         env.put("KAFKA_SASL_ENABLED_MECHANISMS", "PLAINTEXT");
         env.put("KAFKA_INTER_BROKER_LISTENER_NAME", "PLAINTEXT");
@@ -55,6 +57,14 @@ public class KafkaContainer extends GenericContainer<KafkaContainer> {
 
         this.bootstrapServersUrl = format("%s:%d", getContainerIpAddress(), exposedPort);
         this.internalBootstrapServersUrl = format("%s:%d", networkAlias, KAFKA_INTERNAL_ADVERTISED_LISTENERS_PORT);
+    }
+
+    private static String getKafkaContainerImage(String confluentPlatformVersion) {
+        return (String) TestcontainersConfiguration
+                .getInstance().getProperties().getOrDefault(
+                        "kafka.container.image",
+                        "confluentinc/cp-kafka:" + confluentPlatformVersion
+                );
     }
 
     /**
@@ -73,13 +83,5 @@ public class KafkaContainer extends GenericContainer<KafkaContainer> {
      */
     public String getInternalBootstrapServersUrl() {
         return internalBootstrapServersUrl;
-    }
-
-    private static String getKafkaContainerImage(String confluentPlatformVersion) {
-        return (String) TestcontainersConfiguration
-                .getInstance().getProperties().getOrDefault(
-                        "kafka.container.image",
-                        "confluentinc/cp-kafka:" + confluentPlatformVersion
-                );
     }
 }
