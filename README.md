@@ -12,6 +12,10 @@ The current project makes use of [docker](https://www.docker.com/) containers
 (via [testcontainers](https://www.testcontainers.org/) library) for showcasing
 the Confluent Kakfa Connect functionality in an automated test case.
 
+The interactions from this proof of concept are described visually in the image below:
+
+![kafka-connect-jdbc System Test Architecture](images/kafka-connect-jdbc_system-test_architecture.png)
+
 This proof of concept can be used for making end to end system test cases with
 [docker](https://www.docker.com/) for architectures that rely on 
 [kafka-connect-jdbc](https://docs.confluent.io/current/connect/kafka-connect-jdbc/index.html).
