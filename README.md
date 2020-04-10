@@ -29,7 +29,7 @@ Confluent environment (Confluent Schema Registry container support is
 missing from the module previously mentioned).
 As a side note, the containers used do not use the default ports exposed
 by default in the artifacts (e.g. : Apache Zookeeper 2181, Apache Kafka 9092,
-Confluent Schema Registry 8081), but rather free ports available on the
+Confluent Schema Registry 8081, Apache Kafka Connect 8083), but rather free ports available on the
 test machine avoiding therefor possible conflicts with already running
 services on the test machine. 
 
