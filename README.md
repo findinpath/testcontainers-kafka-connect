@@ -1,4 +1,4 @@
-Production/Consumption of Apache Kafka AVRO messages with testcontainers library
+Consumption of Apache Kafka AVRO entities synced via kafka-connect-jdbc from PostgreSQL 
 =======================================================================================
 
 This is a showcase on how to test the synchronization of the contents
