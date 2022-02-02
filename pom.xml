@@ -16,7 +16,7 @@
         <avro.version>1.9.2</avro.version>
         <junit.version>5.6.1</junit.version>
         <rest.assured.version>4.3.0</rest.assured.version>
-        <postgresql.version>42.2.12</postgresql.version>
+        <postgresql.version>42.2.25</postgresql.version>
     </properties>
 
     <dependencies>
