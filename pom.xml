@@ -13,7 +13,7 @@
         <maven.compiler.release>11</maven.compiler.release>
         <testcontainers.version>1.13.0</testcontainers.version>
         <confluent.version>5.3.1</confluent.version>
-        <avro.version>1.9.2</avro.version>
+        <avro.version>1.11.3</avro.version>
         <junit.version>5.6.1</junit.version>
         <rest.assured.version>4.3.0</rest.assured.version>
         <postgresql.version>42.2.12</postgresql.version>
